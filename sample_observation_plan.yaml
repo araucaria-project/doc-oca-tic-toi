@@ -1,0 +1,24 @@
+telescope: "zibi"
+PROGRAM:
+  - WAIT:
+      ut: '16:00'
+  - ZERO:
+      seq:  ['7/V/20', '7/I/20']
+      mode: 'jitter'
+      seq_time: 3600
+  - WAIT:
+      ut: '21:30'
+  - OBJECT:
+      name: 'V496_Aql'
+      ra: '18:58:14.75'
+      dec: '-07:26:15.89'
+      focus: '+30'
+      seq: ['1/V/20']
+  - OBJECT:
+      name: 'V2022_Sgr'
+      ra: '18:40:39.00'
+      dec: '-25:22:50.00'
+      seq: [ '1/V/300' ]
+      subraster: 'patern1'
+
+
