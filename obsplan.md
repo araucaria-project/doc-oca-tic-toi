@@ -1,5 +1,8 @@
 # Observations Plan Files for OCA observatory
 
+At the current stage, all solutions and architectural decisiond presented here have the status of preliminary proposals 
+and are intended as an invitation to the discussion.
+
 ## Objectives
 
 After evaluationg pros and cons, we decided to introduce new file format for observation plans, which will be used by the new (2022+) OCA observatory software.
@@ -86,3 +89,83 @@ In general the syntax of single command line should be like that:
     [LABEL:] <COMMAND> [<POSITIONAL_ARG1> [<POSITIONAL_ARG1>...]] [KW_ARG1_NAME=KW_ARG1_VAL [KW_ARG2_NAME=KW_ARG2_VAL]...]
 ```
 
+## Non-sequential Execution
+There are situations, when sequential execution of an Observation Program is not enough. Below we discuss such 
+circumstances.
+### Circumstances Breaking Sequential Execution
+#### 1. Restarting script from some point
+After break of script execution, caused by harsh weather, failure or another reason, we are restarting script from
+specific line rather than from the beginning. However, there may be some instructions which have to be executed on
+each start or restart, e.g. bringing camera to operational temperature (it may not be real-life example, but good for 
+illustration purpose). Therefore, we need some section with commands executed always on restarting.
+
+#### 2. Scheduled Observation
+We may have observations to be performed exactly at specific time (e.g. during eclipse od EBS). We need therefore
+a section (or at least command) which will be scheduled for that ime and will break the sequence when the time comes.
+
+#### 3. Periodic Calibrations
+We may need e.g. to refocus camera periodically, with constant delay, or, even worst, on specific change of the
+environment temperature. Similarly to "Scheduled Observation", it breaks sequence, and may be hard to determine
+the exact moment of this interruption.
+
+#### 4. End of Night Sequence
+Commands for morning flat-fielding nad closing telescopes used to be added at the end of sequence. It worked well,
+if the execution time of whole program was well established. Sometimes we were losing some time waiting for the dawn,
+with conservative observation plan leaving safe gap after last observation. But having scheduling mechanisms anyway,
+we can imagine that the dawn sequence is just scheduled for specific moment (expressed as time or sun's altitude).
+
+### Resolution
+For the *executor* (software executing Observation Plan), it's possible to schedule non-sequential parts of program.
+Anyway we have to introduce some syntax for those parts. It looks like, it's unavoidable to introduce som kind of
+blocks of instructions. Blocks of instructions, are of course present in any modern programming languages.
+
+Here are some requests for the syntax of blocks of instructions for our "language":
+* We are trying to avoid use of brackets od any kind, so it's better to do not use any brackets for indication of
+the boundaries ot the block (no C++, no Java).
+* It would be better to do not relay on white characters (no Python). It should be however possible to use indentation
+for visually mark the blocks, but this should be not obligatory.
+* Begin and end of the block instruction should fit in one line. (e.g. no "`BLOCK` `BEGIN`" but rather 
+single "`BEGINBLOCK`")  
+
+We would suggest something like this
+```
+BEGINSQUENCE execute_at_time=16:00
+    ZERO seq=15/I/0
+    DARK seq=10/V/300,10/I/200
+    DOMEFLAT seq=7/V/20,7/I/20
+    DOMEFLAT seq=10/str_u/100 domeflat_lamp=0.7
+ENDSEQUENCE
+
+BEGINSQUENCE execute_at_time=02:21:43 priority=+30  # scheduled obs
+    OBJECT FF_Aql 18:58:14.75 17:21:39.29 seq=2/I/60,2/V/70
+ENDSEQUENCE
+
+BEGINSQUENCE execute_periodically=02:00 priority=+10
+    FOCUS NG31 12:12:12 20:20:20
+ENDSEQUENCE
+
+BEGINSQUENCE execute_at_dusk=-12
+    SKYFLAT alt=60:00:00 az=270:00:00  seq=10/I/20,10/V/30 
+    SKYFLAT seq=10/I/0,10/V/0 skyflat_adu=30
+    WAIT t=600
+    FOCUS NG31 12:12:12 20:20:20
+    OBJECT HD193901 20:23:35.8 -21:22:14.0 seq=1/V/300
+    OBJECT FF_Aql 18:58:14.75 17:21:39.29 seq=5/I/60,5/V/70
+    OBJECT V496_Aql 19:08:20.77 -07:26:15.89 seq=1/V/20 focus=+30
+    # etc ...
+ENDSEQUENCE
+
+BEGINSQUENCE execute_at_dawn=-6 priority=+10
+    SKYFLAT alt=60:00:00 az=270:00:00  seq=10/I/20,10/V/30 
+    SKYFLAT seq=10/I/0,10/V/0 skyflat_adu=30
+    SKYFLAT alt=60:00:00 az=270:00:00  seq=10/I/20,10/V/30 
+    SKYFLAT seq=10/I/0,10/V/0 skyflat_adu=30
+ENDSEQUENCE
+
+BEGINSQUENCE execute_at_dawn=+2 priority=+100
+    PARK 
+    DOMECLOSE
+ENDSEQUENCE
+```
+Please note, that morning flats will break execution of observations (`prority=+10`) and telescope closing
+will similarly interrupt dawn flat-fielding (`prority=+100`). 
