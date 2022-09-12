@@ -239,3 +239,11 @@ dictionary:
 ]}
 ```
 etc...
+
+Beside `command`, `commands`, `args` and `kwargs`, we consider following tags for command:
+* `ln` - line number, for debugging and restarting,
+* `label` if provided
+* `message` may be added on latter phases of processing - what to display on execution monitor
+and others...
+
+All those names are still subject to change (e.g. `command` and `commands` can be confusing).
