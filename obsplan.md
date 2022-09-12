@@ -89,6 +89,25 @@ In general the syntax of single command line should be like that:
     [LABEL:] <COMMAND> [<POSITIONAL_ARG1> [<POSITIONAL_ARG1>...]] [KW_ARG1_NAME=KW_ARG1_VAL [KW_ARG2_NAME=KW_ARG2_VAL]...]
 ```
 
+### Syntax Details
+#### Comments
+We will use "line comments"  indicated by the hash `#` sign. Parser will ignore `#` and anything which follows it to the
+end of the line.
+
+#### Typing
+Parser will try to derive type of any parameter:
+* First parser will try to cast any parameter to `int`,
+* If it fails, then parser will try to cast parameter to `float`,
+* If it fails, then parser treats parameter as `str`.
+
+Because space is an argument separator, string parameters can be put in optional quotation marks `"` or apostrophes `'`
+(which will not became parts of parameter value). One can also use python escape characters e.g `\"` for quotation 
+mark inside string or `\n` for new line.
+
+### Possible Extensions
+In future variables and arithmetical expression can be introduced, so our suggestion is to limit allowed characters
+in unquoted string values (e.g. forbid arithmetical operators and '$' sign which will be used to denote variable name).
+
 ## Non-sequential Execution
 There are situations, when sequential execution of an Observation Program is not enough. Below we discuss such 
 circumstances.
@@ -129,22 +148,22 @@ single "`BEGINBLOCK`")
 
 We would suggest something like this
 ```
-BEGINSQUENCE execute_at_time=16:00
+BEGINSEQUENCE execute_at_time=16:00
     ZERO seq=15/I/0
     DARK seq=10/V/300,10/I/200
     DOMEFLAT seq=7/V/20,7/I/20
     DOMEFLAT seq=10/str_u/100 domeflat_lamp=0.7
 ENDSEQUENCE
 
-BEGINSQUENCE execute_at_time=02:21:43 priority=+30  # scheduled obs
+BEGINSEQUENCE execute_at_time=02:21:43 priority=+30  # scheduled obs
     OBJECT FF_Aql 18:58:14.75 17:21:39.29 seq=2/I/60,2/V/70
 ENDSEQUENCE
 
-BEGINSQUENCE execute_periodically=02:00 priority=+10
+BEGINSEQUENCE execute_periodically=02:00 priority=+10
     FOCUS NG31 12:12:12 20:20:20
 ENDSEQUENCE
 
-BEGINSQUENCE execute_at_dusk=-12
+BEGINSEQUENCE execute_at_dusk=-12
     SKYFLAT alt=60:00:00 az=270:00:00  seq=10/I/20,10/V/30 
     SKYFLAT seq=10/I/0,10/V/0 skyflat_adu=30
     WAIT t=600
@@ -155,17 +174,68 @@ BEGINSQUENCE execute_at_dusk=-12
     # etc ...
 ENDSEQUENCE
 
-BEGINSQUENCE execute_at_dawn=-6 priority=+10
+BEGINSEQUENCE execute_at_dawn=-6 priority=+10
     SKYFLAT alt=60:00:00 az=270:00:00  seq=10/I/20,10/V/30 
     SKYFLAT seq=10/I/0,10/V/0 skyflat_adu=30
     SKYFLAT alt=60:00:00 az=270:00:00  seq=10/I/20,10/V/30 
     SKYFLAT seq=10/I/0,10/V/0 skyflat_adu=30
 ENDSEQUENCE
 
-BEGINSQUENCE execute_at_dawn=+2 priority=+100
+BEGINSEQUENCE execute_at_dawn=+2 priority=+100
     PARK 
     DOMECLOSE
 ENDSEQUENCE
 ```
 Please note, that morning flats will break execution of observations (`prority=+10`) and telescope closing
 will similarly interrupt dawn flat-fielding (`prority=+100`). 
+
+## Parser
+We will implement Observation Plan parser (and maybe also formatter) as independent module, probably in 
+`https://github.com/araucaria-project/pyaraucaria` repository. It will allow any party to handle this file format
+in common way.
+
+we suggest, that the implementation of the parser will base on the 
+[lark python package](https://github.com/lark-parser/lark) which is the most known and used abstract parser. The
+advantage of using such parser is also fact that we will have to have formal EBNF syntax definition.
+
+The parser will translate Observation Plan to python `dict` object. E.g. the last example should produce following 
+dictionary:
+```python
+{'commands': [
+    {
+        'command': 'SEQUENCE',
+        'kwargs': {'execute_at_time': '16:00'},
+        'commands': 
+        [
+            {
+                'command': 'ZERO',
+                'kwargs': {'seq': '15/I/0'}
+            },
+            {
+                'command': 'DARK',
+                'kwargs': {'seq': '0/V/300,10/I/200'}
+            },
+            {
+                'command': 'DOMEFLAT', 
+                'kwargs': {'seq': '7/V/20,7/I/20'}
+            },
+            {
+                'command': 'DOMEFLAT',
+                'kwargs': {'seq': '10/str_u/100','domeflat_lamp': 0.7}
+            }
+        ]  
+    },
+    {
+        'command': 'SEQUENCE',
+        'kwargs': {'execute_at_time': '02:21:43','priority': 30}
+        'commands': [
+            {
+                'command': 'OBJECT',
+                'args': ['FF_Aql', '18:58:14.75', '17:21:39.29'],
+                'kwargs': {'seq': '2/I/60,2/V/70'}
+            }
+        ]
+    }
+]}
+```
+etc...
