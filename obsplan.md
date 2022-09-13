@@ -247,3 +247,10 @@ Beside `command`, `commands`, `args` and `kwargs`, we consider following tags fo
 and others...
 
 All those names are still subject to change (e.g. `command` and `commands` can be confusing).
+
+## References
+Lark parser package: https://lark-parser.readthedocs.io/en/latest/index.html 
+Lark Web IDE: https://www.lark-parser.org/ide/
+
+Regexp in python - module `re`
+Regexp Web IDE: https://regex101.com 
