@@ -1,18 +1,18 @@
 # Observations Plan Files for OCA observatory
 
-At the current stage, all solutions and architectural decisiond presented here have the status of preliminary proposals 
+At the current stage, all solutions and architectural decisions presented here have the status of preliminary proposals 
 and are intended as an invitation to the discussion.
 
 ## Objectives
 
-After evaluationg pros and cons, we decided to introduce new file format for observation plans, which will be used by the new (2022+) OCA observatory software.
-As, in some simplification, observations plan is a sequence of command, the format of observations plan file is basically a syntax of kind of programming language.
-Because we want the new format to be human-readable, -editable and -managable, we decide to introduce new language instead of using e.g. JSON syntax. 
+After evaluation of pros and cons, we decided to introduce new file format for observation plans, which will be used by the new (2022+) OCA observatory software.
+As, in some simplification, observations plan is a sequence of command, the format of Observations Plan file is basically a syntax of kind of programming language.
+Because we want the new format to be human-readable, -editable and -manageable, we decide to introduce new language instead of using e.g. JSON syntax. 
 New format should be somehow similar to ols obsplan files for the **IRIS** and **V16** telescopes and in general to be readable and understandable by astronomers without 
 need to RTFM (*read the fantastic manual*).
 
-We want to keep the syntax well-defined and intuitively but uniquely transformable to python dictionary object (and therefore to JSON, YAML etc).
-Moreover we want to provide any developers with python package for parsing anf formatting those files.
+We want to keep the syntax well-defined and intuitively but uniquely transformable to python dictionary object (and therefore to JSON, YAML etc.).
+Moreover, we want to provide any developers with python package for parsing anf formatting those files.
 
 ## The Syntax
 
@@ -83,7 +83,7 @@ OB02:  OBJECT FF_Aql 18:58:14.75 17:21:39.29 seq=5/I/60,5/V/70
 OB03:  OBJECT V496_Aql 19:08:20.77 -07:26:15.89 seq=1/V/20 focus=+30
 ```
 
-Introduction of labels brings as to something like below as an syntax of single command:
+Introduction of labels brings as to something like below as a syntax of single command:
 In general the syntax of single command line should be like that:
 ```
     [LABEL:] <COMMAND> [<POSITIONAL_ARG1> [<POSITIONAL_ARG1>...]] [KW_ARG1_NAME=KW_ARG1_VAL [KW_ARG2_NAME=KW_ARG2_VAL]...]
@@ -101,7 +101,7 @@ Parser will try to derive type of any parameter:
 * If it fails, then parser treats parameter as `str`.
 
 Because space is an argument separator, string parameters can be put in optional quotation marks `"` or apostrophes `'`
-(which will not became parts of parameter value). One can also use python escape characters e.g `\"` for quotation 
+(which will not became parts of parameter value). One can also use python escape characters e.g. `\"` for quotation 
 mark inside string or `\n` for new line.
 
 ### Possible Extensions
@@ -227,7 +227,7 @@ dictionary:
     },
     {
         'command': 'SEQUENCE',
-        'kwargs': {'execute_at_time': '02:21:43','priority': 30}
+        'kwargs': {'execute_at_time': '02:21:43','priority': 30},
         'commands': [
             {
                 'command': 'OBJECT',
@@ -249,8 +249,8 @@ and others...
 All those names are still subject to change (e.g. `command` and `commands` can be confusing).
 
 ## References
-Lark parser package: https://lark-parser.readthedocs.io/en/latest/index.html 
-Lark Web IDE: https://www.lark-parser.org/ide/
+* Lark parser package: https://lark-parser.readthedocs.io/en/latest/index.html 
+* Lark Web IDE: https://www.lark-parser.org/ide/
 
-Regexp in python - module `re`
-Regexp Web IDE: https://regex101.com 
+* Regexp in python - module `re`
+* Regexp Web IDE: https://regex101.com 
