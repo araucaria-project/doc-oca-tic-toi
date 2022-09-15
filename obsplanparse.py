@@ -4,7 +4,7 @@
 from lark import Lark
 
 
-def parse(obsplan :str)
+def parse(obsplan :str):
   pass
 
 
