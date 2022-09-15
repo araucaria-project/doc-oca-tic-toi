@@ -1,0 +1,21 @@
+?start: commands
+
+!commands   : command (args* kwargs*)*  
+!command    : word
+kwargs      : kwarg*
+args        : arg*
+?arg        : val
+?kwarg      : kw "=" val
+!kw         : word
+!val        : string_simple | string_quoted
+
+?string_quoted  : /[\"].*[\"]|[\'].*[\']/
+?word           : WORD
+?string_simple  : /[^\s^=]+/
+?number         : SIGNED_NUMBER
+
+%import common.WORD
+%import common.SIGNED_NUMBER
+%import common.WS
+
+%ignore WS
