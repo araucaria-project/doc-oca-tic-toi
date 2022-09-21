@@ -1,0 +1,3 @@
+BEGINSEQUENCE execute_at_time=02:21:43 priority=+30  # scheduled obs
+    OBJECT FF_Aql 18:58:14.75 17:21:39.29 seq=2/I/60,2/V/70
+ENDSEQUENCE

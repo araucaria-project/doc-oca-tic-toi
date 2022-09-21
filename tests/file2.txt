@@ -1,0 +1,6 @@
+BEGINSEQUENCE execute_at_dawn=-6 priority=+10
+    SKYFLAT alt=60:00:00 az=270:00:00  seq=10/I/20,10/V/30
+    SKYFLAT seq=10/I/0,10/V/0 skyflat_adu=30
+    SKYFLAT alt=60:00:00 az=270:00:00  seq=10/I/20,10/V/30
+    SKYFLAT seq=10/I/0,10/V/0 skyflat_adu=30
+ENDSEQUENCE

@@ -4,11 +4,11 @@
 !command    : word
 kwargs      : kwarg*
 args        : arg*
-arg        : val
-kwarg      : kw "=" val*
+arg         : val
+kwarg       : kw "=" val*
 
-!kw         : string_simple
-!val        : string_simple | string_quoted
+!kw             : string_simple
+!val            : string_simple | string_quoted
 ?string_quoted  : /[\"].*[\"]|[\'].*[\']/
 ?word           : WORD
 ?string_simple  : /[^\s,^=]+/
@@ -20,3 +20,4 @@ kwarg      : kw "=" val*
 
 %ignore WS
 %ignore /,/
+%ignore /#.*/
