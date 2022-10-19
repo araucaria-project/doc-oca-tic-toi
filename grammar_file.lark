@@ -1,23 +1,24 @@
-?start: commands
+?start: sequences
 
-!commands   : command (args* kwargs*)*
-!command    : word
-kwargs      : kwarg*
-args        : arg*
-arg         : val
-kwarg       : kw "=" val*
+!sequences      : sequence*
+!sequence       : end_line* begin_sequence args kwargs comment? separator all_commands end_sequence comment? (end_line* comment?)*
+!all_commands   : (command separator)*
+!command        : (command_name args kwargs | sequence) comment?
+!command_name   : word
+kwargs          : kwarg*
+args            : val*
+kwarg           : kw "=" (val ",")+ val | kw "=" val
 
+!begin_sequence : "BEGINSEQUENCE"
+!end_sequence   : "ENDSEQUENCE"
+separator       : end_line+
+word            : /[^{BEGINSEQUENCE}{ }][A-Z]+/
+comment         : /#.*/
+end_line        : /\n/
 !kw             : string_simple
 !val            : string_simple | string_quoted
 ?string_quoted  : /[\"].*[\"]|[\'].*[\']/
-?word           : WORD
-?string_simple  : /[^\s,^=]+/
-?number         : SIGNED_NUMBER
+?string_simple  : /[^\s=\'\"]+/
 
-%import common.WORD
-%import common.SIGNED_NUMBER
-%import common.WS
 
-%ignore WS
-%ignore /,/
-%ignore /#.*/
+%ignore /[ \f]+/
