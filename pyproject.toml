@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "doc-oca-tic-toi"
+version = "0.1.0"
+description = "Documentation of 2022+ software for OCA telescopes"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "doc_oca_tic_toi"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+mkdocs-material = "^8.5.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
